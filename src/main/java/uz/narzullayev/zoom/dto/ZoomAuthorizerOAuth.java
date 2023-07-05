@@ -1,4 +1,4 @@
-package com.salesboxai.zoom;
+package uz.narzullayev.zoom.dto;
 
 import java.util.Base64;
 

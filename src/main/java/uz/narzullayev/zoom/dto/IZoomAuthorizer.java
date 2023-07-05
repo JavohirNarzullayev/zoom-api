@@ -1,4 +1,4 @@
-package com.salesboxai.zoom;
+package uz.narzullayev.zoom.dto;
 
 /**
  * This class represents the ability to authorize Zoom requests. It has

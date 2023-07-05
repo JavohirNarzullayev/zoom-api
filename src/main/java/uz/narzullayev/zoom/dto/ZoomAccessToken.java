@@ -1,11 +1,9 @@
-package uz.narzullayev.zoom;
+package uz.narzullayev.zoom.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
-import uz.narzullayev.zoom.dto.AsJsonString;
-import uz.narzullayev.zoom.dto.ZoomAPIException;
 
 /**
  * Represents a Zoom Access Token.

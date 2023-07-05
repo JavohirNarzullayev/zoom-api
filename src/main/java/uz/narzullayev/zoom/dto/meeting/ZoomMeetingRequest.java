@@ -1,10 +1,10 @@
-package uz.narzullayev.zoom.dto;
+package uz.narzullayev.zoom.dto.meeting;
 
-import com.salesboxai.zoom.ZoomMeeting.Recurrence;
-import com.salesboxai.zoom.ZoomMeeting.Settings;
-import com.salesboxai.zoom.ZoomMeeting.TrackingField;
 import lombok.Getter;
 import lombok.Setter;
+import uz.narzullayev.zoom.dto.AsJsonString;
+
+import static uz.narzullayev.zoom.dto.meeting.ZoomMeeting.*;
 
 /**
  * Represents a request for a Zoom meeting
@@ -31,7 +31,7 @@ public class ZoomMeetingRequest extends AsJsonString {
 		zmr.topic = topic;
 		zmr.type = 1;
 		zmr.agenda = agenda;
-		zmr.settings = new ZoomMeeting.Settings();
+		zmr.settings = new Settings();
 		zmr.settings.join_before_host = true;
 		zmr.settings.approval_type = 2;
 		zmr.settings.meeting_authentication = false;

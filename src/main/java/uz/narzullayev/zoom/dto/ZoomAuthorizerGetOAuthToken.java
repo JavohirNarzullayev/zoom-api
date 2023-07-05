@@ -1,4 +1,4 @@
-package com.salesboxai.zoom;
+package uz.narzullayev.zoom.dto;
 
 /**
  * Use this authorizer when we need to access the ZoomAPI::requestAccessToken()

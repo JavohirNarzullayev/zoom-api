@@ -1,4 +1,4 @@
-package com.salesboxai.zoom;
+package uz.narzullayev.zoom.dto;
 
 /**
  * Raised when the Zoom API fails due to invalid Authorization

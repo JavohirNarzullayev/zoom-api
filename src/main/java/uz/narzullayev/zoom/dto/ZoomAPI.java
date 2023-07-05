@@ -1,16 +1,18 @@
-package com.salesboxai.zoom;
+package uz.narzullayev.zoom.dto;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import uz.narzullayev.zoom.dto.meeting.ZoomMeeting;
+import uz.narzullayev.zoom.dto.meeting.ZoomMeetingListIterator;
+import uz.narzullayev.zoom.dto.meeting.ZoomMeetingRequest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Provides a Java wrapper around the Zoom API, returning Java objects
@@ -18,18 +20,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  * @author charles.lobo
  */
-public class ZoomAPI
-{
-	private Config cfg;
-	private IZoomAuthorizer za;
+public class ZoomAPI {
 
-	public ZoomAPI(IZoomAuthorizer za) {
-		cfg = new Config();
+	private final IZoomAuthorizer za;
+	private final ZoomProperties zoomProperties;
+
+	public ZoomAPI(IZoomAuthorizer za,ZoomProperties zoomProperties) {
+		this.zoomProperties = zoomProperties;
 		this.za = za;
 	}
 
 	public ZoomUser getUser(String id) throws ZoomAPIException {
-		String url = endpoint("/users/" + id);
+		String url = endpoint("users/" + id);
 		return get(url, ZoomUser.class);
 	}
 
@@ -42,23 +44,20 @@ public class ZoomAPI
 		return new ZoomMeetingListIterator(this, user);
 	}
 
-	public ZoomAccessToken requestAccessToken(String code, String redirecturl) throws ZoomAPIException {
-		/*try {
-		//	code = URLEncoder.encode(code, StandardCharsets.UTF_8.toString());
-			//redirecturl = URLEncoder.encode(redirecturl, StandardCharsets.UTF_8.toString());
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}*/
-		String url = cfg.OAUTH_ENDPOINT + "?grant_type=authorization_code&code=" + code + "&redirect_uri=" + redirecturl;
+	public ZoomAccessToken requestAccessToken(String code) throws ZoomAPIException {
+		code = URLEncoder.encode(code, StandardCharsets.UTF_8);
+		String redirecturl = zoomProperties.getRedirectUrl();
+		redirecturl = URLEncoder.encode(redirecturl, StandardCharsets.UTF_8);
+		String url = zoomProperties.getTOKEN_URL() + "?grant_type=authorization_code&code=" + code + "&redirect_uri=" + redirecturl;
 		return post(url, null, ZoomAccessToken.class);
 	}
 
 	private void refreshAccessToken(IZoomAuthorizer za) throws ZoomAPIException {
 		ZoomAccessToken tkn = za.clearOAuthToken();
-		if(tkn == null) return;
-		ZoomAuthorizerOAuth oauth = (ZoomAuthorizerOAuth)za;
+		if (tkn == null) return;
+		ZoomAuthorizerOAuth oauth = (ZoomAuthorizerOAuth) za;
 		try {
-			String url = cfg.OAUTH_ENDPOINT + "?grant_type=refresh_token&refresh_token=" + URLEncoder.encode(tkn.refresh_token, "UTF-8");
+			String url = zoomProperties.getTOKEN_URL() + "?grant_type=refresh_token&refresh_token=" + URLEncoder.encode(tkn.refresh_token, StandardCharsets.UTF_8);
 			ZoomAccessToken refreshed = post(url, null, ZoomAccessToken.class);
 			oauth.setNewOAuthToken(refreshed);
 			za.onNewToken(refreshed);
@@ -67,8 +66,8 @@ public class ZoomAPI
 		}
 	}
 
-	String endpoint(String name) {
-		return cfg.API_ENDPOINT + "/" + name;
+	public String endpoint(String name) {
+		return zoomProperties.getAPI_ENDPOINT() + "/" + name;
 	}
 
 	public <T> T post(String url, String reqJSON, Class<T> cls) throws ZoomAPIException {
@@ -119,7 +118,7 @@ public class ZoomAPI
 			URL url_ = new URL(url);
 			HttpURLConnection conn = (HttpURLConnection) url_.openConnection();
 			conn.setRequestMethod(method);
-			conn.setRequestProperty("authorization", za.authHeader());
+			conn.setRequestProperty("Authorization", za.authHeader());
 
 			if(reqJSON != null && reqJSON.length() > 0) {
 				OutputStream out = null;
@@ -127,7 +126,7 @@ public class ZoomAPI
 					conn.setRequestProperty("content-type", "application/json");
 					conn.setDoOutput(true);
 					out = conn.getOutputStream();
-					out.write(reqJSON.getBytes("UTF-8"));
+					out.write(reqJSON.getBytes(StandardCharsets.UTF_8));
 					out.flush();
 					out.close();
 				} catch(Throwable t) {
@@ -144,10 +143,10 @@ public class ZoomAPI
 			while((length = in.read(buffer)) != -1) {
 				body.write(buffer, 0, length);
 				total += length;
-				if(total > cfg.MAX_RESPONSE_SIZE) {
+				if(total > zoomProperties.getMaxResponseSize()) {
 					String cl = conn.getHeaderField("Content-Length");
 					in.close();
-					String xtract = body.toString("UTF-8");
+					String xtract = body.toString(StandardCharsets.UTF_8);
 					if(xtract.length() > 256) xtract = xtract.substring(0, 256);
 					throw new ZoomAPIException("Response too big (Content-Length: " + cl + "). Read: " + total + " bytes\n" + xtract);
 				}
@@ -169,7 +168,7 @@ public class ZoomAPI
 			if(status == 409) msg = "Conflict when executing request";
 			if(status == 429) msg = "Too many requests";
 			try {
-				msg = body.toString("UTF-8");
+				msg = body.toString(StandardCharsets.UTF_8);
 			} catch(Throwable e) { /* ignore */ }
 			throw new ZoomAPIException("Call failed with status: " + status + " " + msg);
 		}

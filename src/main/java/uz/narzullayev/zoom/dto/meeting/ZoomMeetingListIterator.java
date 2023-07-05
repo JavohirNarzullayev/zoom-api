@@ -1,8 +1,17 @@
-package com.salesboxai.zoom;
+package uz.narzullayev.zoom.dto.meeting;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import uz.narzullayev.zoom.dto.ZoomAPI;
+import uz.narzullayev.zoom.dto.ZoomAPIException;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+@Getter
+@Setter
+@ToString
 public class ZoomMeetingListIterator implements Iterator<ZoomMeetingInfo> {
 	ZoomAPI za;
 	String user;

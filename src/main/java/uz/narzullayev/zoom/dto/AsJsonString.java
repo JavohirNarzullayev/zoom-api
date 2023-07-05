@@ -1,4 +1,4 @@
-package com.salesboxai.zoom;
+package uz.narzullayev.zoom.dto;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

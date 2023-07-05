@@ -1,4 +1,4 @@
-package uz.narzullayev.zoom;
+package uz.narzullayev.zoom.dto;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,10 +35,11 @@ public class SimplePersist {
 	 * Save the given POJO exported as JSON to a new line in our db file
 	 */
 	public <T> void save(T pojo) throws Exception {
-		BufferedWriter db = new BufferedWriter(new FileWriter(dbName, true));
+		BufferedWriter db = new BufferedWriter(new FileWriter(dbName,false));
 		ObjectMapper mapper = new ObjectMapper();
 		String ndjson = mapper.writeValueAsString(pojo);
 		if(hasdata) ndjson = "\n" + ndjson;
+		db.newLine();
 		db.write(ndjson);
 		db.flush();
 		db.close();
@@ -49,13 +50,11 @@ public class SimplePersist {
 	 */
 	public String loadLastEntry() throws IOException {
 		String line, last = null;
-		try {
-			BufferedReader db = new BufferedReader(new FileReader(dbName));
-			while((line  = db.readLine()) != null) {
-				last = line;
-			}
-			db.close();
-		} catch(FileNotFoundException e) {}
+		BufferedReader db = new BufferedReader(new FileReader(dbName));
+		while((line  = db.readLine()) != null) {
+			last = line;
+		}
+		db.close();
 		return last;
 	}
 

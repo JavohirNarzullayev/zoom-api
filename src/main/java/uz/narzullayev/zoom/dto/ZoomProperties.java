@@ -1,4 +1,4 @@
-package uz.narzullayev.zoom;
+package uz.narzullayev.zoom.dto;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

@@ -1,10 +1,15 @@
-package com.salesboxai.zoom;
+package uz.narzullayev.zoom.dto;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Represents a Zoom User with all the user details.
  *
  * @author charles.lobo
  */
+@Getter
+@Setter
 public class ZoomUser extends AsJsonString {
 	public String id;
 	public String first_name;
